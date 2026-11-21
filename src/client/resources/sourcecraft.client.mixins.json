@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "com.hazeg7.sourcecraft.client.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"AbstractClientPlayerMixin",
+		"CameraMixin",
+		"MouseHandlerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

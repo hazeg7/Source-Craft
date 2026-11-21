@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "sourcecraft:block/timer_end_pad"
+    }
+  }
+}

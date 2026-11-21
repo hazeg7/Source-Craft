@@ -1,0 +1,22 @@
+{
+  "itemGroup.sourcecraft": "SourceCraft Surf & KZ",
+  "block.sourcecraft.surf_ramp_30": "Surf Ramp (30\u00b0 Gentle)",
+  "block.sourcecraft.surf_ramp_45": "Surf Ramp (45\u00b0 Classic)",
+  "block.sourcecraft.surf_ramp_60": "Surf Ramp (60\u00b0 Steep)",
+  "block.sourcecraft.boost_pad": "Source Boost Pad",
+  "block.sourcecraft.timer_start_pad": "KZ / Surf Start Pad",
+  "block.sourcecraft.timer_end_pad": "KZ / Surf Finish Pad",
+  "block.sourcecraft.checkpoint_pad": "KZ Checkpoint Pad",
+  "item.sourcecraft.map_wand": "SourceCraft Zone Wand",
+  "key.category.sourcecraft.general": "SourceCraft (CS:S Movement)",
+  "key.sourcecraft.open_studio": "Open SourceCraft Studio",
+  "key.sourcecraft.toggle_engine": "Toggle CS:S Physics",
+  "key.sourcecraft.toggle_autobhop": "Toggle Auto-Bhop",
+  "key.sourcecraft.cycle_preset": "Cycle Physics Preset",
+  "key.sourcecraft.slow_walk": "Slow Walk (130 u/s)",
+  "key.sourcecraft.save_cp": "Save Checkpoint (/cp)",
+  "key.sourcecraft.tp_cp": "Teleport Checkpoint (/tpcp)",
+  "key.sourcecraft.restart_run": "Restart Course Run (/r)",
+  "key.sourcecraft.cycle_hud": "Cycle Telemetry HUD",
+  "modmenu.descriptionTranslation.sourcecraft": "Authentic Counter-Strike: Source movement engine for Minecraft 26.3 \u2014 sub-stepped 100/66-tick air-strafing, bhop, surf ramps, KZ timer, telemetry HUD, and CVar console."
+}

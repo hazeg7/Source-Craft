@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SourceCraft — CS: Source Movement Mod for Minecraft 26.3 (Fabric)</title>
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">SC</div>
+        <span>SOURCECRAFT</span>
+        <span class="pill pill-cyan">MC 26.3 · Fabric</span>
+      </div>
+      <nav class="nav-links" aria-label="Primary Navigation">
+        <a href="#playground">Physics Lab</a>
+        <a href="#cvars">CVar Reference</a>
+        <a href="#mechanics">Source Tech</a>
+        <a href="#blocks">Blocks &amp; HUD</a>
+        <a href="#install">Install</a>
+      </nav>
+      <a class="btn btn-sm btn-primary" href="#install">Get Mod</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="pill pill-mint">v1.0.0 · CGameMovement / CCSGameMovement</span>
+          <h1>Counter-Strike: Source movement physics inside Minecraft 26.3.</h1>
+          <p class="hero-lead">
+            Sub-stepped <strong>100 Hz / 66 Hz</strong> air-strafing inside Minecraft's 20-TPS engine,
+            sub-tick mouse yaw interpolation, authentic <code>sv_air_max_wishspeed 30</code> gain,
+            <code>ClipVelocity</code> surf ramps &amp; vanilla stairs, KZ checkpoints, and a live telemetry HUD.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#playground">Launch 2D Air-Strafe Lab</a>
+            <a class="btn" href="#cvars">Browse 29 CVars</a>
+            <a class="btn" href="https://github.com/hazeg7/Source-Craft" target="_blank" rel="noreferrer">GitHub Repo</a>
+          </div>
+          <div class="stats-strip">
+            <div class="stat-card">
+              <div class="stat-val">100 / 66 Hz</div>
+              <div class="stat-lbl">Sub-Stepped Ticks</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-val">40 HU/b</div>
+              <div class="stat-lbl">72 HU = 1.80m Hull</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-val">6 Presets</div>
+              <div class="stat-lbl">Bhop · Comp · Surf · KZ</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-val">29 CVars</div>
+              <div class="stat-lbl">Studio UI + /css</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+            <strong>Quick In-Game Console</strong>
+            <span class="pill">Default: css_classic</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin:0;">
+            Press <code>M</code> for the SourceCraft Studio GUI, <code>G</code> to toggle CS:S movement,
+            or adjust live server physics with Source-style chat commands:
+          </p>
+          <pre class="code-block">/css preset css_classic      # 100-tick bhop (AA 100)
+/css preset css_comp         # 66-tick competitive (AA 10)
+/css preset css_surf         # 66-tick surf (AA 150)
+/css set sv_airaccelerate 150
+/css set sv_autobunnyhopping 1
+/csshud                      # Drag &amp; snap HUD editor
+/cp · /tpcp · /r             # KZ checkpoints &amp; restart</pre>
+        </aside>
+      </div>
+    </section>
+
+    <section id="playground" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Interactive Simulation</div>
+            <h2>CS: Source Air-Strafe &amp; Sub-Step Lab</h2>
+            <p class="section-sub">
+              Runs the exact <code>SourceMovementEngine</code> math (<code>Friction</code>, <code>Accelerate</code>,
+              <code>AirAccelerate</code> clamped to <code>sv_air_max_wishspeed</code>) in your browser.
+              Toggle the <strong>20-TPS Ghost</strong> to compare Source sub-stepping against naive 20-TPS Minecraft movement.
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button id="modeBtn" class="btn btn-sm btn-active" type="button">Mode: Auto-Strafe Demo</button>
+            <button id="ghostBtn" class="btn btn-sm btn-active" type="button">20-TPS Ghost: ON</button>
+            <button id="resetSimBtn" class="btn btn-sm" type="button">Reset Runner</button>
+          </div>
+        </div>
+
+        <div class="lab-shell">
+          <div class="canvas-frame">
+            <canvas id="simCanvas" width="720" height="410"></canvas>
+            <div class="sim-hud-bar">
+              <div class="metric-box">
+                <div class="metric-label">Horizontal Speed</div>
+                <div id="hudSpeed" class="metric-value" style="color:var(--mint);">250 u/s</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Peak / 20-TPS</div>
+                <div id="hudPeak" class="metric-value">250 / 250</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Strafe Sync</div>
+                <div id="hudSync" class="metric-value" style="color:var(--accent);">100%</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Optimal Angle</div>
+                <div id="hudAngle" class="metric-value">6.9°</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:12px;color:var(--text-secondary);font-family:var(--font-mono);margin-bottom:8px;">
+              PRESETS (ONE-CLICK SYNC)
+            </div>
+            <div id="presetButtons" class="preset-grid"></div>
+
+            <div class="slider-group">
+              <div class="slider-row">
+                <div class="slider-head">
+                  <label for="slAirAccel">sv_airaccelerate</label>
+                  <span id="valAirAccel">100</span>
+                </div>
+                <input id="slAirAccel" type="range" min="1" max="1000" step="1" value="100" />
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-head">
+                  <label for="slTickrate">sv_tickrate (Hz)</label>
+                  <span id="valTickrate">100</span>
+                </div>
+                <input id="slTickrate" type="range" min="20" max="128" step="2" value="100" />
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-head">
+                  <label for="slWish">sv_air_max_wishspeed</label>
+                  <span id="valWish">30</span>
+                </div>
+                <input id="slWish" type="range" min="10" max="80" step="1" value="30" />
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-head">
+                  <label for="slTurn">Simulated Turn Rate (°/s)</label>
+                  <span id="valTurn">260°/s</span>
+                </div>
+                <input id="slTurn" type="range" min="20" max="420" step="5" value="260" />
+              </div>
+            </div>
+
+            <div class="toggle-row">
+              <span><strong>Interactive Tip:</strong> Switch to <em>Playable</em> mode and drag across the arena (or hold <code>A</code> / <code>D</code>) to strafe manually.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cvars" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Console Variable Reference</div>
+            <h2>All 29 SourceCraft CVars</h2>
+            <p class="section-sub">Click any row's copy button to grab its <code>/css set</code> command, or export your active playground config directly for a server.</p>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input id="cvarSearch" class="search-input" type="search" placeholder="Search cvars (e.g. airaccelerate, stamina, surf, ladder)..." />
+          <div id="catButtons" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        </div>
+
+        <div class="cvar-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>CVar</th>
+                <th>Default</th>
+                <th>Range</th>
+                <th>Description</th>
+                <th>Command</th>
+              </tr>
+            </thead>
+            <tbody id="cvarTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="export-grid">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <strong>Generated /css Batch</strong>
+              <button id="copyCmdBatch" class="btn btn-sm" type="button">Copy Commands</button>
+            </div>
+            <pre id="cmdBatchOut" class="code-block"></pre>
+          </div>
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <strong>config/sourcecraft-server.json</strong>
+              <button id="copyJsonCfg" class="btn btn-sm" type="button">Copy JSON</button>
+            </div>
+            <pre id="jsonCfgOut" class="code-block"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mechanics" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Under the Hood</div>
+            <h2>Why It Feels Like CS: Source</h2>
+          </div>
+        </div>
+        <div class="cards-3">
+          <article class="card">
+            <h3>Authentic AirAccelerate</h3>
+            <p>
+              Projection along your wish vector is clamped to <code>sv_air_max_wishspeed (30 u/s)</code>,
+              while acceleration scales by your full <code>250 u/s</code> wishspeed — rewarding smooth mouse curves perpendicular to velocity.
+            </p>
+            <div class="formula">add = min(wish, 30) - dot(vel, dir)
+gain = min(add, aa * wish * dt)</div>
+          </article>
+          <article class="card">
+            <h3>ClipVelocity Surf Planes</h3>
+            <p>
+              On custom <code>30° / 45° / 60°</code> surf ramps or vanilla stairs/snow/slabs, inward velocity projects cleanly onto the ramp plane with zero ledge snags.
+            </p>
+            <div class="formula">backoff = dot(vel, normal) * overbounce
+vel -= normal * backoff</div>
+          </article>
+          <article class="card">
+            <h3>Bhop Friction Skip &amp; Stamina</h3>
+            <p>
+              Hitting a jump on the landing frame (via Space, scroll wheel, or <code>sv_jump_buffer_ticks</code>) fires before <code>Friction()</code>, preserving 100% momentum unless Valve's <code>1.1x</code> cap is active.
+            </p>
+            <div class="formula">if (onGround &amp;&amp; wantsJump) jump(); // skips friction</div>
+          </article>
+          <article class="card">
+            <h3>Air Crouch-Jump (+18 HU)</h3>
+            <p>
+              Mid-air crouching shrinks the collision hull to CS:S <code>54 HU (1.35m)</code> with <code>46 HU (1.15m)</code> eye height and lifts feet upward <code>+0.45</code> blocks when overhead is clear.
+            </p>
+            <div class="formula">stand: 0.6 x 1.80m · crouch: 0.6 x 1.35m</div>
+          </article>
+          <article class="card">
+            <h3>Fast Ladder Strafing</h3>
+            <p>
+              Combining <code>W</code> with <code>A/D</code> on ladders projects both inputs onto the ladder face tangent for diagonal <code>√2</code> climb speed and push-off jumps.
+            </p>
+            <div class="formula">climb = normalDot * look + tang * side</div>
+          </article>
+          <article class="card">
+            <h3>Edgebug &amp; Jumpbug Tech</h3>
+            <p>
+              Skimming a solid block corner at high downward velocity triggers an Edgebug fall-save; timing an uncrouch-jump right before impact triggers a Jumpbug with HUD + chime feedback.
+            </p>
+            <div class="formula">edgebug: !centerBelow &amp;&amp; edgeHit &amp;&amp; vy &lt; -340</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="blocks" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Mapping &amp; Telemetry</div>
+            <h2>Custom Surf Blocks, KZ Timer &amp; HUD</h2>
+          </div>
+        </div>
+        <div class="cards-2">
+          <div class="card">
+            <h3>Course Blocks &amp; Zone Wand</h3>
+            <p style="margin-bottom:10px;">Available in the <strong>SourceCraft Surf &amp; KZ</strong> Creative tab alongside vanilla stair/slab/snow surfing:</p>
+            <ul style="margin:0;padding-left:18px;color:var(--text-secondary);font-size:14px;">
+              <li><code>surf_ramp_30</code>, <code>surf_ramp_45</code>, <code>surf_ramp_60</code> — Directional multi-slice surf ramps with smooth analytical normals</li>
+              <li><code>boost_pad</code> — 2px directional launch pad (<code>950 u/s</code> forward + <code>420 u/s</code> lift)</li>
+              <li><code>timer_start_pad</code>, <code>timer_end_pad</code>, <code>checkpoint_pad</code> — Instant run timer &amp; CP pads</li>
+              <li><code>map_wand</code> — Left/right-click cuboid selector for <code>START</code>, <code>END</code>, and <code>STAGE</code> zones</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Draggable Telemetry HUD &amp; Keybinds</h3>
+            <p style="margin-bottom:10px;">Run <code>/csshud</code> or open Studio (<code>M</code>) to drag, snap, and scale any HUD widget:</p>
+            <ul style="margin:0;padding-left:18px;color:var(--text-secondary);font-size:14px;">
+              <li><strong>Speedometer:</strong> Gain/loss colored <code>u/s</code> or <code>b/s</code>, <code>PRE</code>, <code>PEAK</code>, jump count, tech callouts</li>
+              <li><strong>Strafe Trainer:</strong> Real-time Sync % gauge + <em>Turn More / Optimal / Overstrafe</em> coach</li>
+              <li><strong>Keystrokes &amp; Graph:</strong> <code>WASD + JMP/DCK/WLK + &lt; &gt;</code> + 120-sample sparkline with <code>250 u/s</code> baseline</li>
+              <li><strong>KZ Run Timer:</strong> Millisecond timer, <code>PRO</code> vs <code>NUB</code> tag, Personal Best delta, <code>C</code>/<code>R</code> checkpoints</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Setup</div>
+            <h2>Installation (Minecraft 26.3 + Fabric)</h2>
+          </div>
+        </div>
+        <div class="cards-2">
+          <div class="card">
+            <h3>Client &amp; Server</h3>
+            <ol style="margin:0;padding-left:18px;color:var(--text-secondary);font-size:14px;">
+              <li>Install <strong>Fabric Loader &gt;=0.19.5</strong> for <strong>Minecraft 26.3</strong> (Java 25).</li>
+              <li>Add <strong>Fabric API <code>0.166.2+26.3</code></strong> (and optional <strong>Mod Menu <code>21.0.1</code></strong>) to your <code>mods/</code> folder.</li>
+              <li>Drop <code>sourcecraft-1.0.0.jar</code> into both client and server <code>mods/</code> folders for full multiplayer sync, or singleplayer client only.</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>Build From Source</h3>
+            <pre class="code-block" style="margin-top:0;">git clone https://github.com/hazeg7/Source-Craft.git
+cd Source-Craft
+./gradlew clean test build
+# Output: build/libs/sourcecraft-1.0.0.jar</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <span>SourceCraft · MIT License · Built for Minecraft 26.3 (Fabric)</span>
+    <span>Cool Dark-Slate + Electric Cyan UI · Pure Java Physics Verified via JUnit 5</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

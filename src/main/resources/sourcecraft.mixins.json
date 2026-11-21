@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "com.hazeg7.sourcecraft.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"AvatarMixin",
+		"LivingEntityMixin",
+		"PlayerMixin",
+		"ServerGamePacketListenerImplMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

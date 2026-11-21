@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "sourcecraft:block/surf_ramp_30"
+    },
+    "facing=east": {
+      "model": "sourcecraft:block/surf_ramp_30",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "sourcecraft:block/surf_ramp_30",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "sourcecraft:block/surf_ramp_30",
+      "y": 270
+    }
+  }
+}

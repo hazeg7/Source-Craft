@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "sourcecraft:block/boost_pad"
+    },
+    "facing=east": {
+      "model": "sourcecraft:block/boost_pad",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "sourcecraft:block/boost_pad",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "sourcecraft:block/boost_pad",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+	"schemaVersion": 1,
+	"id": "sourcecraft",
+	"version": "${version}",
+	"name": "SourceCraft",
+	"description": "Authentic Counter-Strike: Source movement engine for Minecraft 26.3 — sub-stepped 100/66-tick air-strafing, bhop, surf ramps, KZ timer, telemetry HUD, and CVar console.",
+	"authors": [
+		"hazeg7"
+	],
+	"contact": {
+		"homepage": "https://hazeg7.github.io/Source-Craft/",
+		"sources": "https://github.com/hazeg7/Source-Craft",
+		"issues": "https://github.com/hazeg7/Source-Craft/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/sourcecraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.hazeg7.sourcecraft.SourceCraftMod"
+		],
+		"client": [
+			"com.hazeg7.sourcecraft.client.SourceCraftClient"
+		],
+		"modmenu": [
+			"com.hazeg7.sourcecraft.client.SourceModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"sourcecraft.mixins.json",
+		{
+			"config": "sourcecraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"suggests": {
+		"modmenu": "*"
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
